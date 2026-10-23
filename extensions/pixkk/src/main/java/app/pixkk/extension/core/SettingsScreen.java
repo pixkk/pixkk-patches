@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * The bundle's settings. They open with a press and hold of three fingers anywhere in the app,
+ * The bundle's settings. They open with a press and hold of two fingers anywhere in the app,
  * which no screen of TikTok's uses, so nothing of the original app or of another bundle is touched.
  */
 public final class SettingsScreen {
@@ -74,11 +74,11 @@ public final class SettingsScreen {
         void watch(MotionEvent event) {
             int action = event.getActionMasked();
             if ((action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_DOWN)
-                    && event.getPointerCount() == 3) {
+                    && event.getPointerCount() == 2) {
                 handler.removeCallbacks(open);
                 handler.postDelayed(open, HOLD_MS);
             } else if (action == MotionEvent.ACTION_POINTER_UP || action == MotionEvent.ACTION_UP
-                    || action == MotionEvent.ACTION_CANCEL || event.getPointerCount() < 3) {
+                    || action == MotionEvent.ACTION_CANCEL || event.getPointerCount() != 2) {
                 handler.removeCallbacks(open);
             }
         }
