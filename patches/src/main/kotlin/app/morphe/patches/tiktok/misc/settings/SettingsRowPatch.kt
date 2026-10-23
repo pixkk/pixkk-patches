@@ -89,7 +89,7 @@ val settingsRowPatch = bytecodePatch(
                 it.getReference<StringReference>()?.string == "What's New"
             }
             val register = (getInstruction(index) as OneRegisterInstruction).registerA
-            replaceInstruction(index, "const-string v$register, \"pixkk\"")
+            replaceInstruction(index, "const-string v$register, \"Pixkk Patches\"")
         }
 
         WhatsNewClickFingerprint.method.addInstructions(

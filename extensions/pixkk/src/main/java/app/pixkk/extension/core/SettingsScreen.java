@@ -118,7 +118,7 @@ public final class SettingsScreen {
             scroll.addView(list, new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             new AlertDialog.Builder(context)
-                    .setTitle("pixkk")
+                    .setTitle("Pixkk Patches")
                     .setView(scroll)
                     .setPositiveButton("Close", null)
                     .show();
