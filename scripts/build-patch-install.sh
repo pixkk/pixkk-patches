@@ -33,6 +33,7 @@ java -Xmx6g -jar morphe-desktop/morphe-desktop-1.18.1-all.jar patch --exclusive 
 grep -i "applied\|Saved\|error\|exception" /d/Projects/tools/patch-pixkk.log | tail -12
 [ -f "/d/Projects/tools/out/$OUT.apk" ] || { echo "PATCH FAILED"; echo ALLDONE; exit 1; }
 
+[ -n "${NOINSTALL:-}" ] && { echo "built, not installed"; echo ALLDONE; exit 0; }
 echo "== install"
 adb -s 7dd8304f install -r "/d/Projects/tools/out/$OUT.apk" 2>&1 | tail -2
 [ -n "${NOLAUNCH:-}" ] || adb -s 7dd8304f shell monkey -p com.test.tt.pixkk -c android.intent.category.LAUNCHER 1 2>&1 | tail -1

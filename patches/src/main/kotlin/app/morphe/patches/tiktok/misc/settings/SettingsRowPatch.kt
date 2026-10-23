@@ -7,12 +7,20 @@ import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.compat.AppCompatibilities
 import app.morphe.patches.tiktok.misc.extension.sharedExtensionPatch
+import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.util.addInstruction
 import app.morphe.util.addInstructions
+import app.morphe.util.findFreeRegister
 import app.morphe.util.getReference
+import app.morphe.util.indexOfFirstInstruction
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.iface.Method as SmaliMethod
+import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
 private const val WHAT = "pixkk settings row"
@@ -46,6 +54,72 @@ internal object SupportGroupRowsFingerprint : Fingerprint(
         } == true
     },
 )
+
+private const val AD_WEB_MORE_ACTION_SERVICE =
+    "Lcom/ss/android/ugc/aweme/commercialize/hybrid/impl/web/AdWebMoreActionService;"
+private const val SPARK_CONTEXT = "Lcom/bytedance/hybrid/spark/SparkContext;"
+private const val TUX_ICON_VIEW = "Lcom/bytedance/tux/icon/TuxIconView;"
+private const val AD_BROWSER_SETTINGS_KEY = "ad_browser_settings"
+private const val VECTOR_RESOURCE_TO_STRING = "VectorResource(resId="
+
+/**
+ * The type of TikTok's `VectorResource(resId: Int)` data class, found by the string its generated
+ * toString() appends. Exactly one class carries it, and it needs the one-int constructor.
+ */
+private fun BytecodePatchContext.vectorResourceClass(): String {
+    val carrier = classDefByStrings(VECTOR_RESOURCE_TO_STRING).singleOrNull()
+        ?: throw PatchException("$WHAT: expected one class carrying \"$VECTOR_RESOURCE_TO_STRING\"")
+    if (carrier.methods.none { it.name == "<init>" && it.parameterTypes.toList() == listOf("I") }) {
+        throw PatchException("$WHAT: ${carrier.type} has no <init>(I)V to build the icon with")
+    }
+    return carrier.type
+}
+
+/**
+ * TikTok's own settings gear: the icon id the Ad Browser settings action hands the icon view it is
+ * drawn in. Read from that bytecode, so no build's resource ids are assumed.
+ */
+private fun settingsGearResourceId(iconRenderer: SmaliMethod, keyCarriers: Iterable<ClassDef>): Int {
+    val iconMethod = iconRenderer.implementation?.instructions?.mapNotNull { instruction ->
+        if (instruction.opcode != Opcode.INVOKE_INTERFACE) return@mapNotNull null
+        (instruction as? ReferenceInstruction)?.reference.let { it as? MethodReference }
+            ?.takeIf { it.parameterTypes.isEmpty() && it.returnType == "I" }
+    }?.toList().orEmpty().singleOrNull()
+        ?: throw PatchException("$WHAT: the Ad Browser action's icon call is gone")
+
+    val ids = keyCarriers.filter { classDef ->
+        iconMethod.definingClass in classDef.interfaces && classDef.methods.any { method ->
+            val body = method.implementation?.instructions?.toList() ?: return@any false
+            method.parameterTypes.isEmpty() && method.returnType == "Ljava/lang/String;" &&
+                body.size == 2 && body[0].opcode == Opcode.CONST_STRING &&
+                body[0].getReference<StringReference>()?.string == AD_BROWSER_SETTINGS_KEY
+        }
+    }.mapNotNull { classDef ->
+        val method = classDef.methods.singleOrNull {
+            it.name == iconMethod.name && it.parameterTypes == iconMethod.parameterTypes &&
+                it.returnType == iconMethod.returnType
+        } ?: return@mapNotNull null
+        method.implementation?.instructions?.toList().orEmpty().zipWithNext().mapNotNull { (value, exit) ->
+            if (exit.opcode != Opcode.RETURN) return@mapNotNull null
+            if ((value as? OneRegisterInstruction)?.registerA != (exit as? OneRegisterInstruction)?.registerA) {
+                return@mapNotNull null
+            }
+            (value as? NarrowLiteralInstruction)?.narrowLiteral
+        }.toSet()
+    }
+    val id = ids.reduceOrNull(Set<Int>::intersect)?.singleOrNull()
+        ?: throw PatchException("$WHAT: the Ad Browser action does not name one settings icon")
+    if (id ushr 24 != 0x7f) throw PatchException("$WHAT: the settings icon is not an app resource")
+    return id
+}
+
+private fun BytecodePatchContext.settingsGearResourceId(): Int {
+    val renderer = mutableClassDefBy(AD_WEB_MORE_ACTION_SERVICE).methods.singleOrNull { method ->
+        method.returnType == "V" &&
+            method.parameterTypes == listOf(SPARK_CONTEXT, "Landroid/content/Context;", TUX_ICON_VIEW)
+    } ?: throw PatchException("$WHAT: the Ad Browser icon renderer was not found once")
+    return settingsGearResourceId(renderer, classDefByStrings(AD_BROWSER_SETTINGS_KEY))
+}
 
 @Suppress("unused")
 val settingsRowPatch = bytecodePatch(
@@ -84,12 +158,30 @@ val settingsRowPatch = bytecodePatch(
             addInstruction(flagRead + 1, "const/4 v$flagRegister, 0x1")
         }
 
+        val vectorResource = vectorResourceClass()
+        val gear = settingsGearResourceId()
         WhatsNewStateFingerprint.method.apply {
             val index = implementation!!.instructions.indexOfFirst {
                 it.getReference<StringReference>()?.string == "What's New"
             }
             val register = (getInstruction(index) as OneRegisterInstruction).registerA
             replaceInstruction(index, "const-string v$register, \"Pixkk Patches\"")
+
+            // The constructor loads one icon from a static and uses it for both icon fields.
+            val iconLoad = indexOfFirstInstruction {
+                opcode == Opcode.SGET_OBJECT && getReference<FieldReference>()?.type == vectorResource
+            }
+            if (iconLoad < 0) throw PatchException("$WHAT: the What's New row's icon load is gone")
+            val iconRegister = (getInstruction(iconLoad) as OneRegisterInstruction).registerA
+            val temp = findFreeRegister(iconLoad + 1, iconRegister)
+            addInstructions(
+                iconLoad + 1,
+                """
+                    new-instance v$iconRegister, $vectorResource
+                    const v$temp, $gear
+                    invoke-direct {v$iconRegister, v$temp}, $vectorResource-><init>(I)V
+                """,
+            )
         }
 
         WhatsNewClickFingerprint.method.addInstructions(
