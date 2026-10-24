@@ -28,7 +28,7 @@ import app.pixkk.extension.core.Settings;
  * Ids are 47.4.3's: {@code id/ppp}, the title of the music row.
  */
 public final class SoundNameScroll {
-    private static final int TITLE_ID = 0x7f0a546f;
+    private static final int TITLE_ID = 0x7f0a546d;
     /** What separates the end of the name from its next start. */
     private static final String GAP = "   ";
     /** Layout is not there yet when a bind has only just set the text, so a start waits for it. */

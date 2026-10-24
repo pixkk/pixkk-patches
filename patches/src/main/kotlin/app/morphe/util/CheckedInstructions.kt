@@ -38,7 +38,7 @@ fun MutableMethod.addInstructions(index: Int, smali: String) =
     keepsEvery(smali) { patcherAddInstructions(index, smali) }
 
 fun MutableMethod.addInstructions(smali: String) =
-    keepsEvery(smali) { patcherAddInstructions(smali) }
+    keepsEvery(smali) { patcherAddInstructions(0, smali) }
 
 fun MutableMethod.addInstructionsWithLabels(index: Int, smali: String, vararg externalLabels: ExternalLabel) =
     keepsEvery(smali) { patcherAddInstructionsWithLabels(index, smali, *externalLabels) }

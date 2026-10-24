@@ -35,10 +35,10 @@ import app.pixkk.extension.core.Utils;
  * that holds the music disc spans the column's width and is left where it is.
  */
 public final class RailSpacing {
-    private static final int COLUMN_ID = 0x7f0a3e2c;
-    private static final int SLOT_ID = 0x7f0a1abf;
+    private static final int COLUMN_ID = 0x7f0a3e2a;
+    private static final int SLOT_ID = 0x7f0a1abd;
     /** {@code id/i_t}, the avatar and follow block, which tells the avatar's slot from a button's. */
-    private static final int AVATAR_ID = 0x7f0a2cb5;
+    private static final int AVATAR_ID = 0x7f0a2cb3;
     private static final int MAX_DEPTH = 40;
     /** A slot at least this share of the column's width is the music disc's, not a button's. */
     private static final float DISC_SLOT_WIDTH_SHARE = 0.9f;

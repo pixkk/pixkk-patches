@@ -49,8 +49,16 @@ internal object BottomTabMapFingerprint : Fingerprint(
 
 /** The bar builder's tab list method, `LJII` of the class that logs "BottomTabOperator". */
 internal object BottomTabOperatorFingerprint : Fingerprint(
-    definingClass = "LX/03oh;",
     name = "LJII",
+    returnType = "Lkotlin/Pair;",
+    parameters = listOf(),
+    custom = { _, classDef ->
+        classDef.methods.any { other ->
+            other.implementation?.instructions?.any {
+                it.getReference<StringReference>()?.string == "BottomTabOperator"
+            } == true
+        }
+    },
 )
 
 @Suppress("unused")

@@ -33,8 +33,8 @@ import app.pixkk.extension.core.Settings;
  * <p>Ids are 47.4.3's, as in {@link RailSpacing}.
  */
 public final class RailSwipeGuard {
-    private static final int COLUMN_ID = 0x7f0a3e2c;
-    private static final int SLOT_ID = 0x7f0a1abf;
+    private static final int COLUMN_ID = 0x7f0a3e2a;
+    private static final int SLOT_ID = 0x7f0a1abd;
     private static final int MAX_DEPTH = 40;
 
     private static final Map<Window, Boolean> WRAPPED = new WeakHashMap<>();

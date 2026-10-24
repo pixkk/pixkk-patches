@@ -33,11 +33,16 @@ internal object DynamicCoverGateFingerprint : Fingerprint(
 
 /** Whether a profile post's cell shows the animated cover; it reads the server's switch for it. */
 internal object ProfilePostDynamicCoverFingerprint : Fingerprint(
-    definingClass = "LX/0JEr;",
-    name = "N5",
     returnType = "Z",
     parameters = listOf(),
     strings = listOf("profile_aweme_post_use_dynamic_cover"),
+    // The class and method names change on every build. The shared gate reads this key too, but
+    // it reads the plain switch as well; the cell's own method reads only this one.
+    custom = { method, _ ->
+        method.implementation?.instructions?.none {
+            it.getReference<StringReference>()?.string == FLAG_KEY
+        } == true
+    },
 )
 
 @Suppress("unused")
