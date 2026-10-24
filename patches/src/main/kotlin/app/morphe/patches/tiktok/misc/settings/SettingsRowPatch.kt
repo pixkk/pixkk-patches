@@ -10,9 +10,14 @@ import app.morphe.patches.tiktok.misc.extension.sharedExtensionPatch
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.util.addInstruction
 import app.morphe.util.addInstructions
+import app.morphe.util.addInstructionsWithLabels
 import app.morphe.util.findFreeRegister
 import app.morphe.util.getReference
 import app.morphe.util.indexOfFirstInstruction
+import app.morphe.util.indexOfFirstInstructionOrThrow
+import app.morphe.util.numberOfParameterRegisters
+import app.morphe.patcher.util.smali.ExternalLabel
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction35c
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.Method as SmaliMethod
@@ -52,6 +57,24 @@ internal object SupportGroupRowsFingerprint : Fingerprint(
         method.implementation?.instructions?.any {
             it.getReference<FieldReference>()?.name == "WHATS_NEW"
         } == true
+    },
+)
+
+private const val PAGE = "Lapp/pixkk/extension/core/SettingsPage;"
+
+/** The activity the settings page is shown in; TikTok's ad personalisation screen, also lent to Hushfeed. */
+internal object PageActivityOnCreateFingerprint : Fingerprint(
+    custom = { method, classDef ->
+        classDef.endsWith("/AdPersonalizationActivity;") && method.name == "onCreate"
+    },
+)
+
+internal object PageActivityOnBackPressedFingerprint : Fingerprint(
+    custom = { method, classDef ->
+        classDef.endsWith("/AdPersonalizationActivity;") &&
+            method.name == "onBackPressed" &&
+            method.parameterTypes.isEmpty() &&
+            method.returnType == "V"
     },
 )
 
@@ -181,6 +204,42 @@ val settingsRowPatch = bytecodePatch(
                     const v$temp, $gear
                     invoke-direct {v$iconRegister, v$temp}, $vectorResource-><init>(I)V
                 """,
+            )
+        }
+
+        PageActivityOnCreateFingerprint.method.apply {
+            val invokeSuperIndex = indexOfFirstInstructionOrThrow(Opcode.INVOKE_SUPER)
+            val invokeSuper = getInstruction(invokeSuperIndex) as? Instruction35c
+                ?: throw PatchException("$WHAT: the settings activity's onCreate has an unsupported invoke-super")
+            val locals = implementation!!.registerCount - numberOfParameterRegisters
+            if (locals < 1) throw PatchException("$WHAT: the settings activity's onCreate has no free register")
+            val scratch = locals - 1
+            val next = invokeSuperIndex + 1
+            addInstructionsWithLabels(
+                next,
+                """
+                    invoke-static { v${invokeSuper.registerC} }, $PAGE->initialize(Landroid/app/Activity;)Z
+                    move-result v$scratch
+                    if-eqz v$scratch, :not_pixkk
+                    return-void
+                """,
+                ExternalLabel("not_pixkk", getInstruction(next)),
+            )
+        }
+
+        PageActivityOnBackPressedFingerprint.method.apply {
+            if (implementation!!.registerCount - numberOfParameterRegisters < 1) {
+                throw PatchException("$WHAT: the settings activity's onBackPressed has no free register")
+            }
+            addInstructionsWithLabels(
+                0,
+                """
+                    invoke-static/range { p0 .. p0 }, $PAGE->handleBackPressed(Landroid/app/Activity;)Z
+                    move-result v0
+                    if-eqz v0, :not_pixkk
+                    return-void
+                """,
+                ExternalLabel("not_pixkk", getInstruction(0)),
             )
         }
 

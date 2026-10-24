@@ -1,20 +1,11 @@
 package app.pixkk.extension.core;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.Switch;
-import android.widget.TextView;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -84,74 +75,8 @@ public final class SettingsScreen {
         }
     }
 
+    /** Opens the settings page; the row in Settings and the gesture both come here. */
     public static void show(Context context) {
-        try {
-            LinearLayout list = new LinearLayout(context);
-            list.setOrientation(LinearLayout.VERTICAL);
-            int pad = Dim.dp(16);
-            list.setPadding(pad, pad / 2, pad, pad / 2);
-
-            toggle(list, "Expand description in place", Settings.EXPAND_DESCRIPTION_IN_PLACE);
-            toggle(list, "Sound name under description", Settings.SOUND_UNDER_DESCRIPTION);
-            toggle(list, "Scroll sound name", Settings.SOUND_NAME_SCROLL);
-            number(list, "Sound scroll speed", Settings.SOUND_NAME_SCROLL_SPEED);
-            number(list, "Right column: gap between buttons, dp", Settings.RAIL_SPACING_DP);
-            number(list, "Right column: gap under avatar, dp", Settings.RAIL_AVATAR_GAP_DP);
-            number(list, "Right column: gap above disc, dp", Settings.RAIL_DISC_GAP_DP);
-            toggle(list, "Don't open comments when swiping over icons", Settings.RAIL_SWIPE_PASSTHROUGH);
-            toggle(list, "Centered comment menu", Settings.COMMENT_MENU_CENTERED);
-            Button rows = new Button(context);
-            rows.setText("Comment menu rows...");
-            rows.setOnClickListener(v -> CommentMenuRowsPreference.show(context));
-            list.addView(rows);
-            toggle(list, "Animated profile covers", Settings.ANIMATED_PROFILE_COVERS);
-            toggle(list, "Old-style seeking", Settings.SEEK_FOLLOWS_FINGER);
-            toggle(list, "Old-style counts (12.3K)", Settings.OLD_STYLE_COUNTS);
-            toggle(list, "Discover tab instead of Friends", Settings.DISCOVER_TAB);
-
-            TextView note = new TextView(context);
-            note.setText("Changes apply after the app is restarted.");
-            note.setPadding(0, pad, 0, 0);
-            list.addView(note);
-
-            ScrollView scroll = new ScrollView(context);
-            scroll.addView(list, new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            new AlertDialog.Builder(context)
-                    .setTitle("Pixkk Patches")
-                    .setView(scroll)
-                    .setPositiveButton("Close", null)
-                    .show();
-        } catch (Throwable ex) {
-            Logger.printException(() -> "Could not show the settings", ex);
-        }
-    }
-
-    private static void toggle(LinearLayout list, String label, Settings.BooleanSetting setting) {
-        Switch row = new Switch(list.getContext());
-        row.setText(label);
-        row.setChecked(setting.get());
-        row.setPadding(0, Dim.dp(8), 0, Dim.dp(8));
-        row.setOnCheckedChangeListener((button, checked) -> setting.save(checked));
-        list.addView(row);
-    }
-
-    private static void number(LinearLayout list, String label, Settings.IntegerSetting setting) {
-        Context context = list.getContext();
-        TextView text = new TextView(context);
-        text.setText(label + " (" + setting.min + " to " + setting.max + ")");
-        list.addView(text);
-        EditText input = new EditText(context);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
-        input.setText(String.valueOf(setting.get()));
-        input.setOnFocusChangeListener((view, focused) -> {
-            if (focused) return;
-            try {
-                setting.save(Integer.parseInt(input.getText().toString().trim()));
-            } catch (NumberFormatException ignored) {
-            }
-            input.setText(String.valueOf(setting.get()));
-        });
-        list.addView(input);
+        SettingsPage.open(context);
     }
 }
