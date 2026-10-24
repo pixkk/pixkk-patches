@@ -3,6 +3,7 @@ package app.pixkk.extension.core;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -28,15 +29,38 @@ import java.lang.reflect.Proxy;
 public final class SettingsPage {
     private static final String ACTION = "pixkk_settings";
 
-    private static final int BACKGROUND = Color.BLACK;
-    private static final int SURFACE = Color.rgb(17, 17, 21);
-    private static final int BORDER = Color.rgb(53, 53, 62);
-    private static final int DIVIDER = Color.rgb(41, 41, 48);
-    private static final int TEXT = Color.rgb(245, 245, 247);
-    private static final int TEXT_MUTED = Color.rgb(168, 168, 179);
-    private static final int ACCENT = Color.rgb(255, 79, 135);
+    private static int BACKGROUND;
+    private static int SURFACE;
+    private static int BORDER;
+    private static int DIVIDER;
+    private static int TEXT;
+    private static int TEXT_MUTED;
+    private static int ACCENT;
 
     private SettingsPage() {
+    }
+
+    /** The page follows the theme the activity runs in, which can differ from the system's. */
+    private static void applyTheme(Activity activity) {
+        boolean dark = (activity.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        if (dark) {
+            BACKGROUND = Color.BLACK;
+            SURFACE = Color.rgb(17, 17, 21);
+            BORDER = Color.rgb(53, 53, 62);
+            DIVIDER = Color.rgb(41, 41, 48);
+            TEXT = Color.rgb(245, 245, 247);
+            TEXT_MUTED = Color.rgb(168, 168, 179);
+            ACCENT = Color.rgb(255, 79, 135);
+        } else {
+            BACKGROUND = Color.rgb(245, 245, 248);
+            SURFACE = Color.WHITE;
+            BORDER = Color.rgb(210, 210, 210);
+            DIVIDER = Color.rgb(224, 224, 224);
+            TEXT = Color.rgb(22, 22, 28);
+            TEXT_MUTED = Color.rgb(87, 87, 98);
+            ACCENT = Color.rgb(184, 22, 77);
+        }
     }
 
     /** Starts the activity that shows the page. */
@@ -81,6 +105,7 @@ public final class SettingsPage {
     }
 
     private static View build(Activity activity) {
+        applyTheme(activity);
         FrameLayout root = new FrameLayout(activity);
         root.setBackgroundColor(BACKGROUND);
         root.setFitsSystemWindows(true);

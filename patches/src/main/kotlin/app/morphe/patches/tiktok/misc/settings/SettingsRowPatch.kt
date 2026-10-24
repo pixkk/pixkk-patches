@@ -136,7 +136,7 @@ private fun settingsGearResourceId(iconRenderer: SmaliMethod, keyCarriers: Itera
     return id
 }
 
-private fun BytecodePatchContext.settingsGearResourceId(): Int {
+internal fun BytecodePatchContext.settingsGearResourceId(): Int {
     val renderer = mutableClassDefBy(AD_WEB_MORE_ACTION_SERVICE).methods.singleOrNull { method ->
         method.returnType == "V" &&
             method.parameterTypes == listOf(SPARK_CONTEXT, "Landroid/content/Context;", TUX_ICON_VIEW)

@@ -22,7 +22,7 @@ ORIG=()
 [ -n "${ORIGINAL:-}" ] && ORIG=(-p "$ORIGINAL" -e "Hide video overlays" -e "Run beside the store app")
 java -Xmx6g -jar morphe-desktop/morphe-desktop-1.18.1-all.jar patch --exclusive \
   -p "/d/Projects/pixkk-patches/$MPP" \
-  -e "Expand description in place" -e "Sound name under description" -e "Scroll sound name" -e "Right column spacing" -e "Comment menu rows" -e "Centered comment menu" -e "Don't open comments on icon swipe" -e "Animated profile covers" -e "Old-style seeking" -e "Old-style counts" -e "Discover tab" -e "pixkk settings row" \
+  -e "Expand description in place" -e "Sound name under description" -e "Scroll sound name" -e "Right column spacing" -e "Comment menu rows" -e "Centered comment menu" -e "Don't open comments on icon swipe" -e "Animated profile covers" -e "Old-style seeking" -e "Old-style counts" -e "Discover tab" -e "pixkk settings row" -e "Settings menu row" \
   "${ORIG[@]}" \
   -p morphe-patches/patches-1.47.0.mpp -e "Clone app" -O packageName=com.test.tt.pixkk \
   --keystore="$HOME/.android/debug.keystore" --keystore-entry-alias=androiddebugkey \
