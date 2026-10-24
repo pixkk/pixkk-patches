@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -44,16 +43,107 @@ public final class MenuRow {
             View mine = build(cell, icon);
             if (mine == null) return cell;
 
-            LinearLayout column = new LinearLayout(cell.getContext());
-            column.setOrientation(LinearLayout.VERTICAL);
-            ViewGroup.LayoutParams own = cell.getLayoutParams();
-            column.setLayoutParams(own);
-            column.addView(cell, new LinearLayout.LayoutParams(-1, -2));
-            column.addView(mine, new LinearLayout.LayoutParams(-1, -2));
-            return column;
+            // The built row stays as it is. Ours goes in beside it once it has a parent.
+            cell.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View view) {
+                    view.removeOnAttachStateChangeListener(this);
+                    ViewGroup parent = (ViewGroup) view.getParent();
+                    if (parent != null && mine.getParent() == null) {
+                        parent.addView(mine, parent.indexOfChild(view) + 1, copyOf(view.getLayoutParams()));
+                        // The row tidies its own parts as it is first laid out, so the look is
+                        // copied over once that has happened.
+                        Runnable match = () -> {
+                            mirror(view, mine);
+                            copyIcon(view, mine);
+                        };
+                        mine.post(match);
+                        mine.postDelayed(match, 250);
+                    }
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View view) {
+                }
+            });
+            return cell;
         } catch (Throwable ex) {
             Logger.printException(() -> "Could not add the menu row", ex);
             return cell;
+        }
+    }
+
+    /** The row TikTok built has the margins the menu wants; ours takes a copy of its parameters. */
+    private static ViewGroup.LayoutParams copyOf(ViewGroup.LayoutParams own) {
+        if (own == null) return new ViewGroup.LayoutParams(-1, -2);
+        try {
+            return own.getClass().getConstructor(own.getClass()).newInstance(own);
+        } catch (Throwable ex) {
+            return new ViewGroup.LayoutParams(own);
+        }
+    }
+
+    /**
+     * TikTok adjusts margins and padding of the row's parts after it builds them. Both rows are the
+     * same class, so the parts line up one for one and the adjustments carry over.
+     */
+    private static void mirror(View from, View to) {
+        to.setPadding(from.getPaddingLeft(), from.getPaddingTop(), from.getPaddingRight(), from.getPaddingBottom());
+        ViewGroup.LayoutParams a = from.getLayoutParams();
+        ViewGroup.LayoutParams b = to.getLayoutParams();
+        if (a instanceof ViewGroup.MarginLayoutParams && b instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams source = (ViewGroup.MarginLayoutParams) a;
+            ViewGroup.MarginLayoutParams target = (ViewGroup.MarginLayoutParams) b;
+            target.setMargins(source.leftMargin, source.topMargin, source.rightMargin, source.bottomMargin);
+            // Margins set as start and end win over left and right once the layout is resolved.
+            target.setMarginStart(source.getMarginStart());
+            target.setMarginEnd(source.getMarginEnd());
+            to.setLayoutParams(target);
+        }
+        if (from instanceof ViewGroup && to instanceof ViewGroup) {
+            ViewGroup source = (ViewGroup) from;
+            ViewGroup target = (ViewGroup) to;
+            if (source.getChildCount() != target.getChildCount()) return;
+            for (int i = 0; i < source.getChildCount(); i++) {
+                mirror(source.getChildAt(i), target.getChildAt(i));
+            }
+        }
+    }
+
+    private static android.widget.TextView firstText(View root) {
+        if (root instanceof android.widget.TextView) return (android.widget.TextView) root;
+        if (root instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) root;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                android.widget.TextView found = firstText(group.getChildAt(i));
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    /** The icon the settings row draws, with its tint, on the same part of our row. */
+    private static void copyIcon(View from, View to) {
+        try {
+            for (Field field : from.getClass().getFields()) {
+                if (!field.getType().getName().endsWith("TuxIconView")) continue;
+                Object source = field.get(from);
+                Object target = field.get(to);
+                if (source instanceof android.widget.ImageView && target instanceof android.widget.ImageView) {
+                    android.graphics.drawable.Drawable drawable = ((android.widget.ImageView) source).getDrawable();
+                    // TikTok's icon drawable keeps the resource it was made from.
+                    int res = drawable.getClass().getField("iconRes").getInt(drawable);
+                    target.getClass().getMethod("setIconRes", int.class).invoke(target, res);
+                    android.widget.TextView title = firstText(from);
+                    if (title != null) {
+                        target.getClass().getMethod("setTintColor", int.class)
+                                .invoke(target, title.getCurrentTextColor());
+                    }
+                }
+                return;
+            }
+        } catch (Throwable ex) {
+            Logger.printException(() -> "Could not copy the menu row icon", ex);
         }
     }
 
@@ -77,7 +167,8 @@ public final class MenuRow {
         if (setIcon != null) {
             Object holder = setIcon.getParameterTypes()[0].getConstructor().newInstance();
             for (Field field : holder.getClass().getFields()) {
-                if (field.getType() == Integer.class) field.set(holder, icon);
+                // The holder's first int field is the icon's resource id; setIcon hands it to the icon view.
+                if (field.getType() == int.class && field.getName().equals("LIZ")) field.set(holder, icon);
             }
             setIcon.invoke(cell, holder);
         }
