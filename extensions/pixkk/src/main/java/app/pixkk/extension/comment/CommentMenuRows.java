@@ -1,6 +1,5 @@
 /*
- * Copyright 2026 Hushfeed contributors
- * https://github.com/SysAdminDoc/hushfeed
+ * Copyright 2026 pixkk
  */
 package app.pixkk.extension.comment;
 
