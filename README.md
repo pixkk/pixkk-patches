@@ -2,8 +2,6 @@
 
 A Morphe patch bundle for TikTok 47.4.3. Add `https://github.com/pixkk/pixkk-patches` as a source in Morphe Manager.
 
-The patches here are only the ones that are not in Hushfeed. They are applied next to Hushfeed's own bundle, which is taken from its repository.
-
 ## Patches
 
 - Expand description in place
@@ -26,7 +24,7 @@ The bundle is built on the same patch framework as [Hushfeed](https://github.com
 - from Hushfeed: the helper code under `patches/src/main/kotlin/app/morphe/util/` and `.../tiktok/shared/` (register handling, instruction checks, fingerprint scopes, bundle verification), and the extension helpers `Reflect`, `GlobalLayoutHook` and `Dim`;
 - the build setup (Gradle files and wrapper) follows the same layout.
 
-That code is not a patch. No patch of Hushfeed is included here, and none of the patches listed above exists in Hushfeed.
+That code is not a patch. The patches here are only the ones that are not in Hushfeed. They are applied next to Hushfeed's own bundle, which is taken from its repository.
 
 Files that carry a copyright header from those projects keep it.
 
