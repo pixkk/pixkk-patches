@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
@@ -45,21 +45,21 @@ public final class SettingsPage {
         boolean dark = (activity.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
         if (dark) {
-            BACKGROUND = Color.BLACK;
-            SURFACE = Color.rgb(17, 17, 21);
-            BORDER = Color.rgb(53, 53, 62);
-            DIVIDER = Color.rgb(41, 41, 48);
-            TEXT = Color.rgb(245, 245, 247);
-            TEXT_MUTED = Color.rgb(168, 168, 179);
-            ACCENT = Color.rgb(255, 79, 135);
+            BACKGROUND = Color.rgb(24, 26, 29);
+            SURFACE = Color.rgb(24, 26, 29);
+            BORDER = Color.rgb(60, 64, 70);
+            DIVIDER = Color.rgb(47, 51, 56);
+            TEXT = Color.rgb(236, 239, 241);
+            TEXT_MUTED = Color.rgb(144, 153, 162);
+            ACCENT = Color.rgb(77, 208, 225);
         } else {
-            BACKGROUND = Color.rgb(245, 245, 248);
+            BACKGROUND = Color.WHITE;
             SURFACE = Color.WHITE;
-            BORDER = Color.rgb(210, 210, 210);
-            DIVIDER = Color.rgb(224, 224, 224);
-            TEXT = Color.rgb(22, 22, 28);
-            TEXT_MUTED = Color.rgb(87, 87, 98);
-            ACCENT = Color.rgb(184, 22, 77);
+            BORDER = Color.rgb(207, 216, 220);
+            DIVIDER = Color.rgb(228, 233, 236);
+            TEXT = Color.rgb(33, 37, 41);
+            TEXT_MUTED = Color.rgb(96, 108, 118);
+            ACCENT = Color.rgb(0, 131, 143);
         }
     }
 
@@ -110,33 +110,28 @@ public final class SettingsPage {
         root.setBackgroundColor(BACKGROUND);
         root.setFitsSystemWindows(true);
 
-        LinearLayout page = new LinearLayout(activity);
-        page.setOrientation(LinearLayout.VERTICAL);
-        int side = Dim.dp(16);
-        page.setPadding(side, Dim.dp(8), side, Dim.dp(32));
+        LinearLayout column = new LinearLayout(activity);
+        column.setOrientation(LinearLayout.VERTICAL);
 
+        // A plain app bar: arrow, title, a line under it.
         LinearLayout top = new LinearLayout(activity);
         top.setGravity(Gravity.CENTER_VERTICAL);
         TextView back = new TextView(activity);
-        back.setText("←");
+        back.setText("‹");
         back.setTextColor(TEXT);
-        back.setTextSize(22);
+        back.setTextSize(34);
         back.setGravity(Gravity.CENTER);
-        back.setBackground(circle(SURFACE));
         back.setOnClickListener(v -> activity.finish());
-        top.addView(back, new LinearLayout.LayoutParams(Dim.dp(48), Dim.dp(48)));
-        TextView brand = label(activity, "PIXKK", 12, ACCENT, true);
-        brand.setPadding(Dim.dp(12), 0, 0, 0);
-        brand.setLetterSpacing(0.1f);
-        top.addView(brand);
-        page.addView(top);
+        top.addView(back, new LinearLayout.LayoutParams(Dim.dp(56), Dim.dp(56)));
+        top.addView(label(activity, "Pixkk Patches", 20, TEXT, true));
+        column.addView(top, new LinearLayout.LayoutParams(-1, Dim.dp(56)));
+        View line = new View(activity);
+        line.setBackgroundColor(DIVIDER);
+        column.addView(line, new LinearLayout.LayoutParams(-1, Dim.dp(1)));
 
-        TextView title = label(activity, "Pixkk Patches", 32, TEXT, true);
-        title.setPadding(Dim.dp(8), Dim.dp(24), 0, 0);
-        page.addView(title);
-        TextView subtitle = label(activity, "Changes apply after the app is restarted", 15, TEXT_MUTED, false);
-        subtitle.setPadding(Dim.dp(8), Dim.dp(8), 0, Dim.dp(8));
-        page.addView(subtitle);
+        LinearLayout page = new LinearLayout(activity);
+        page.setOrientation(LinearLayout.VERTICAL);
+        page.setPadding(Dim.dp(20), 0, Dim.dp(20), Dim.dp(32));
 
         LinearLayout feed = group(page, "FEED");
         toggle(feed, "Expand description in place", Settings.EXPAND_DESCRIPTION_IN_PLACE);
@@ -161,29 +156,28 @@ public final class SettingsPage {
         LinearLayout navigation = group(page, "NAVIGATION");
         toggle(navigation, "Discover tab instead of Friends", Settings.DISCOVER_TAB);
 
+        TextView note = label(activity, "Changes apply after the app is restarted.", 13, TEXT_MUTED, false);
+        note.setPadding(0, Dim.dp(24), 0, 0);
+        page.addView(note);
+
         ScrollView scroll = new ScrollView(activity);
         scroll.setFillViewport(true);
         scroll.addView(page, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        root.addView(scroll, new FrameLayout.LayoutParams(-1, -1));
+        column.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        root.addView(column, new FrameLayout.LayoutParams(-1, -1));
         return root;
     }
 
     private static LinearLayout group(LinearLayout page, String heading) {
         Context context = page.getContext();
-        TextView header = label(context, heading, 12, TEXT_MUTED, true);
-        header.setLetterSpacing(0.1f);
-        header.setPadding(Dim.dp(8), Dim.dp(24), 0, Dim.dp(8));
+        String name = heading.charAt(0) + heading.substring(1).toLowerCase();
+        TextView header = label(context, name, 14, ACCENT, true);
+        header.setPadding(0, Dim.dp(24), 0, Dim.dp(4));
         page.addView(header);
 
         LinearLayout card = new LinearLayout(context);
         card.setOrientation(LinearLayout.VERTICAL);
-        GradientDrawable shape = new GradientDrawable();
-        shape.setColor(SURFACE);
-        shape.setStroke(Dim.dp(1), BORDER);
-        shape.setCornerRadius(Dim.dp(20));
-        card.setBackground(shape);
-        card.setPadding(Dim.dp(16), 0, Dim.dp(16), 0);
         page.addView(card, new LinearLayout.LayoutParams(-1, -2));
         return card;
     }
@@ -208,6 +202,10 @@ public final class SettingsPage {
         row.addView(label(card.getContext(), title, 16, TEXT, true), new LinearLayout.LayoutParams(0, -2, 1));
         Switch control = new Switch(card.getContext());
         control.setChecked(setting.get());
+        ColorStateList states = new ColorStateList(
+                new int[][]{{android.R.attr.state_checked}, {}}, new int[]{ACCENT, BORDER});
+        control.setThumbTintList(states);
+        control.setTrackTintList(ColorStateList.valueOf(DIVIDER));
         control.setOnCheckedChangeListener((button, checked) -> setting.save(checked));
         row.addView(control);
         row.setOnClickListener(v -> control.toggle());
@@ -256,14 +254,6 @@ public final class SettingsPage {
         view.setTextColor(color);
         if (bold) view.setTypeface(Typeface.DEFAULT_BOLD);
         return view;
-    }
-
-    private static GradientDrawable circle(int color) {
-        GradientDrawable shape = new GradientDrawable();
-        shape.setShape(GradientDrawable.OVAL);
-        shape.setColor(color);
-        shape.setStroke(Dim.dp(1), BORDER);
-        return shape;
     }
 
     /**
