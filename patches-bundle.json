@@ -1,7 +1,7 @@
 {
-    "created_at":  "2026-10-24T18:26:08",
-    "description":  "Info update",
-    "download_url":  "https://github.com/pixkk/pixkk-patches/releases/download/v1.0.0/patches-1.0.0.mpp",
-    "signature_download_url":  "",
-    "version":  "1.0.0"
+  "created_at": "2026-10-24T19:12:50",
+  "description": "Update to TikTok 47.5.3. Patch list and source info now show when the repository is added by URL.",
+  "download_url": "https://github.com/pixkk/pixkk-patches/releases/download/v1.0.1/patches-1.0.1.mpp",
+  "signature_download_url": "",
+  "version": "1.0.1"
 }
