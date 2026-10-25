@@ -1,5 +1,5 @@
 {
-  "version": "v1.0.2",
+  "version": "v1.0.3",
   "appNames": {
     "com.zhiliaoapp.musically": "TikTok"
   },
@@ -344,7 +344,35 @@
           ]
         }
       ],
-      "options": []
+      "options": [
+        {
+          "key": "gapBetweenButtons",
+          "title": "Gap between buttons, dp",
+          "description": "From -30 to 60. 0 leaves TikTok's own spacing.",
+          "required": false,
+          "type": "kotlin.Int",
+          "default": 0,
+          "values": null
+        },
+        {
+          "key": "gapUnderAvatar",
+          "title": "Gap under avatar, dp",
+          "description": "From -30 to 60. 0 leaves TikTok's own spacing.",
+          "required": false,
+          "type": "kotlin.Int",
+          "default": 0,
+          "values": null
+        },
+        {
+          "key": "gapAboveDisc",
+          "title": "Gap above disc, dp",
+          "description": "From -30 to 60. 0 leaves TikTok's own spacing.",
+          "required": false,
+          "type": "kotlin.Int",
+          "default": 0,
+          "values": null
+        }
+      ]
     },
     {
       "name": "Scroll sound name",
@@ -382,7 +410,17 @@
           ]
         }
       ],
-      "options": []
+      "options": [
+        {
+          "key": "scrollSpeed",
+          "title": "Scroll speed",
+          "description": "How fast the name scrolls, from 10 to 200. A patched app starts with it until it is changed on the settings page.",
+          "required": false,
+          "type": "kotlin.Int",
+          "default": 40,
+          "values": null
+        }
+      ]
     },
     {
       "name": "Settings menu row",
