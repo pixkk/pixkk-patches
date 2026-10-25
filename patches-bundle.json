@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-25T10:20:59",
-  "description": "Fixes on TikTok 47.5.3: sound name under the description and its scrolling, right column spacing, and the Pixkk Patches row in the profile menu.",
-  "download_url": "https://github.com/pixkk/pixkk-patches/releases/download/v1.0.2/patches-1.0.2.mpp",
+  "created_at": "2026-10-25T11:31:10",
+  "description": "Fixes",
+  "download_url": "https://github.com/pixkk/pixkk-patches/releases/download/v1.0.3/patches-1.0.3.mpp",
   "signature_download_url": "",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
