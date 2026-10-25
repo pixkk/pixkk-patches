@@ -35,13 +35,18 @@ public final class Settings {
         }
     }
 
+    /** Where an integer setting's value comes from until it is changed. */
+    interface IntSource {
+        int get();
+    }
+
     public static final class IntegerSetting {
         public final String key;
         public final int min;
         public final int max;
-        private final int fallback;
+        private final IntSource fallback;
 
-        IntegerSetting(String key, int fallback, int min, int max) {
+        IntegerSetting(String key, IntSource fallback, int min, int max) {
             this.key = key;
             this.fallback = fallback;
             this.min = min;
@@ -50,7 +55,7 @@ public final class Settings {
 
         public int get() {
             SharedPreferences prefs = prefs();
-            int value = prefs == null ? fallback : prefs.getInt(key, fallback);
+            int value = prefs == null ? fallback.get() : prefs.getInt(key, fallback.get());
             return Math.max(min, Math.min(max, value));
         }
 
@@ -90,12 +95,15 @@ public final class Settings {
     /** A sound name wider than its row scrolls along the row instead of being cut off with dots. */
     public static final BooleanSetting SOUND_NAME_SCROLL = new BooleanSetting("sound_name_scroll", true);
     public static final IntegerSetting SOUND_NAME_SCROLL_SPEED =
-            new IntegerSetting("sound_name_scroll_speed", 40, 10, 200);
+            new IntegerSetting("sound_name_scroll_speed", Defaults::soundScrollSpeed, 10, 200);
 
     /** Added to the gaps down the right of a video, in dp; negative closes a gap up. */
-    public static final IntegerSetting RAIL_SPACING_DP = new IntegerSetting("rail_spacing_dp", 0, -30, 60);
-    public static final IntegerSetting RAIL_AVATAR_GAP_DP = new IntegerSetting("rail_avatar_gap_dp", 0, -30, 60);
-    public static final IntegerSetting RAIL_DISC_GAP_DP = new IntegerSetting("rail_disc_gap_dp", 0, -30, 60);
+    public static final IntegerSetting RAIL_SPACING_DP =
+            new IntegerSetting("rail_spacing_dp", Defaults::railSpacingDp, -30, 60);
+    public static final IntegerSetting RAIL_AVATAR_GAP_DP =
+            new IntegerSetting("rail_avatar_gap_dp", Defaults::railAvatarGapDp, -30, 60);
+    public static final IntegerSetting RAIL_DISC_GAP_DP =
+            new IntegerSetting("rail_disc_gap_dp", Defaults::railDiscGapDp, -30, 60);
 
     /** Rows of the comment long-press menu that are left out, and every row seen so far. */
     public static final StringSetting COMMENT_MENU_HIDDEN_ROWS = new StringSetting("comment_menu_hidden_rows", "");
