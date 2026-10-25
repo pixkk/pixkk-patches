@@ -15,7 +15,7 @@ val commentMenuRowsPatch = bytecodePatch(
     name = "Comment menu rows",
     description = "Lets you pick which rows the menu a press and hold on a comment opens shows. " +
         "The rows are read from the menu itself as it opens, so nothing is fixed in the patch: " +
-        "the list in Hushfeed settings > Comments holds every row the menu has shown.",
+        "the list in the Pixkk Patches settings holds every row the menu has shown.",
 ) {
     category("Comments")
     compatibleWith(*AppCompatibilities.tiktok())

@@ -49,7 +49,7 @@ internal object ProfilePostDynamicCoverFingerprint : Fingerprint(
 val animatedProfileCoversPatch = bytecodePatch(
     name = WHAT,
     description = "Plays the short animation TikTok used to show in each video's preview on a " +
-        "profile grid. It can be turned off in Hushfeed settings > Feed screen.",
+        "profile grid. It can be turned off in the Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

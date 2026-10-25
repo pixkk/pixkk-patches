@@ -147,8 +147,7 @@ internal fun BytecodePatchContext.settingsGearResourceId(): Int {
 @Suppress("unused")
 val settingsRowPatch = bytecodePatch(
     name = WHAT,
-    description = "Turns the What's New row in Settings and privacy into the pixkk settings. The " +
-        "Hushfeed row, if its bundle is applied too, is left alone.",
+    description = "Turns the What's New row in Settings and privacy into the Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

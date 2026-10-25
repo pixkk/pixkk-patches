@@ -65,7 +65,7 @@ internal object BottomTabOperatorFingerprint : Fingerprint(
 val discoverTabPatch = bytecodePatch(
     name = WHAT,
     description = "Puts the Discover tab (the compass) in the bottom bar where Friends is. It can " +
-        "be turned off in Hushfeed settings > Feed screen > Bottom bar.",
+        "be turned off in the Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

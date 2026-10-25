@@ -50,7 +50,7 @@ val seekAtFingerPatch = bytecodePatch(
     name = WHAT,
     description = "Dragging along the progress bar in the feed puts the video where your finger is " +
         "on the bar, as TikTok used to, instead of moving it by how far the finger travels. It " +
-        "can be turned off in Hushfeed settings > Feed screen > Gestures.",
+        "can be turned off in the Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

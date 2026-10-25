@@ -31,10 +31,10 @@ import app.pixkk.extension.core.Settings;
 public final class SoundUnderDescription {
     private static final String PROMO_TAG_CLASS = "com.ss.android.ugc.aweme.music.model.MusicPromoTagInfo";
     private static final String NOTE = "♫ ";
-    /** 47.4.3's ids: the music row's root, its title and its note icon. */
-    private static final int ROW_ID = 0x7f0a4c46;
-    private static final int TITLE_ID = 0x7f0a546d;
-    private static final int ICON_ID = 0x7f0a5430;
+    /** 47.5.3's ids: the music row's root ({@code id/o8s}), its title ({@code ppw}) and its note icon ({@code ppa}). */
+    private static final int ROW_ID = 0x7f0a4c7d;
+    private static final int TITLE_ID = 0x7f0a5474;
+    private static final int ICON_ID = 0x7f0a545e;
     /** {@code raw/icon_music_note_s_alt}, the picture TikTok gives a matched song's note. */
     private static final int NOTE_ICON = 0x7f01098a;
 

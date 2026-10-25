@@ -31,14 +31,14 @@ import app.pixkk.extension.core.Utils;
  * runs after each pass without starting another. The column and the views above it stop clipping,
  * or a slot moved past the column's top edge would be cut off.
  *
- * Ids are 47.4.3's: {@code id/ljn}, the column, and {@code id/exj}, each slot in it. The slot
+ * Ids are 47.5.3's: {@code id/lke}, the column, and {@code id/ex9}, each slot in it. The slot
  * that holds the music disc spans the column's width and is left where it is.
  */
 public final class RailSpacing {
-    private static final int COLUMN_ID = 0x7f0a3e2a;
-    private static final int SLOT_ID = 0x7f0a1abd;
-    /** {@code id/i_t}, the avatar and follow block, which tells the avatar's slot from a button's. */
-    private static final int AVATAR_ID = 0x7f0a2cb3;
+    private static final int COLUMN_ID = 0x7f0a3e46;
+    private static final int SLOT_ID = 0x7f0a1ab2;
+    /** {@code id/iam}, the avatar and follow block, which tells the avatar's slot from a button's. */
+    private static final int AVATAR_ID = 0x7f0a2cd1;
     private static final int MAX_DEPTH = 40;
     /** A slot at least this share of the column's width is the music disc's, not a button's. */
     private static final float DISC_SLOT_WIDTH_SHARE = 0.9f;

@@ -16,8 +16,8 @@ private const val EXTENSION = "Lapp/pixkk/extension/feed/RailSpacing;"
 val railSpacingPatch = bytecodePatch(
     name = "Right column spacing",
     description = "Lets you widen or close up the gap between the buttons down the right of a " +
-        "video: avatar, like, comments, save and share. The gap is set in Hushfeed settings > " +
-        "Feed screen > Right column, and 0 leaves TikTok's own spacing.",
+        "video: avatar, like, comments, save and share. The gap is set in the " +
+        "Pixkk Patches settings, and 0 leaves TikTok's own spacing.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

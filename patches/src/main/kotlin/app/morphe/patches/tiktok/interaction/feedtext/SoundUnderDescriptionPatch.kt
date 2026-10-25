@@ -69,7 +69,7 @@ internal object MusicRowTitleFingerprint : Fingerprint(
 val soundUnderDescriptionPatch = bytecodePatch(
     name = "Sound name under description",
     description = "Shows the video's sound name on its own line under the description, the way " +
-        "the feed did before the redesign. Starts off. Turn it on in Hushfeed settings > Feed screen.",
+        "the feed did before the redesign. Starts off. Turn it on in the Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

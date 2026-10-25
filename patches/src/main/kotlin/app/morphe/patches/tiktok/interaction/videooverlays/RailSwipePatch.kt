@@ -17,8 +17,8 @@ val railSwipePatch = bytecodePatch(
     name = "Don't open comments on icon swipe",
     description = "Lets a swipe that starts on one of the buttons down the right of a video " +
         "(avatar, like, comments, save, share) scroll to the next video, instead of pressing " +
-        "the button when the finger comes up. It can be turned off in Hushfeed settings > " +
-        "Feed screen > Right column.",
+        "the button when the finger comes up. It can be turned off in the " +
+        "Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

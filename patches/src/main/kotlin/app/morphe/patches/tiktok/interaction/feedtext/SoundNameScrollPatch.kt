@@ -14,8 +14,8 @@ private const val EXTENSION = "Lapp/pixkk/extension/feed/SoundNameScroll;"
 val soundNameScrollPatch = bytecodePatch(
     name = "Scroll sound name",
     description = "Scrolls a sound name that is wider than its row along the row, the way the " +
-        "feed did before the redesign, instead of ending it in dots. The speed is set in Hushfeed " +
-        "settings. Starts off. Turn it on in Hushfeed settings > Feed screen.",
+        "feed did before the redesign, instead of ending it in dots. The speed is set in the " +
+        "Pixkk Patches settings. Starts off. Turn it on there.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())

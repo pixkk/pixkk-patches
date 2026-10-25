@@ -6,7 +6,9 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.shared.compat.AppCompatibilities
 import app.morphe.patches.tiktok.misc.extension.sharedExtensionPatch
 import app.morphe.util.addInstructions
+import app.morphe.util.getReference
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 private const val WHAT = "Settings menu row"
 private const val MENU_ROW = "Lapp/pixkk/extension/navigation/MenuRow;"
@@ -39,12 +41,20 @@ val settingsMenuRowPatch = bytecodePatch(
             val instructions = implementation!!.instructions.toList()
             val exit = instructions.indexOfLast { it.opcode == Opcode.RETURN_OBJECT }
             if (exit < 0) throw PatchException("$WHAT: the row builder no longer returns a view")
+            // The component's getter for its protocol is renamed on every build. The builder
+            // already calls it before it returns, so its name is read from that call.
+            val protocolGetter = instructions.firstNotNullOfOrNull { instruction ->
+                instruction.getReference<MethodReference>()?.takeIf {
+                    instruction.opcode == Opcode.INVOKE_VIRTUAL && it.definingClass == CELL_COMPONENT &&
+                        it.returnType == CELL_PROTOCOL && it.parameterTypes.isEmpty()
+                }?.name
+            } ?: throw PatchException("$WHAT: the row builder never asks for its protocol")
             // The method ends with the built row in v4 and `this` in v2, which TikTok's own code
             // keeps there to the end; v0 and v1 are free by then.
             addInstructions(
                 exit,
                 """
-                    invoke-virtual { v2 }, $CELL_COMPONENT->ir()$CELL_PROTOCOL
+                    invoke-virtual { v2 }, $CELL_COMPONENT->$protocolGetter()$CELL_PROTOCOL
                     move-result-object v0
                     if-eqz v0, :pixkk_no_protocol
                     invoke-virtual { v0 }, $PROTOCOL->getName()Ljava/lang/String;

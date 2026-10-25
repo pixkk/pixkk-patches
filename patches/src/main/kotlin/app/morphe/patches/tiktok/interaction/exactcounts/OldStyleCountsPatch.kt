@@ -18,8 +18,8 @@ private const val EXTENSION = "Lapp/pixkk/extension/feed/OldStyleCounts;"
 val oldStyleCountsPatch = bytecodePatch(
     name = WHAT,
     description = "Writes long like, comment and other counts as 12.3K and 1.2M in every language, " +
-        "not with the language's own word for thousand. It can be turned off in Hushfeed " +
-        "settings > Feed screen.",
+        "not with the language's own word for thousand. It can be turned off in " +
+        "the Pixkk Patches settings.",
 ) {
     category("Feed")
     dependsOn(sharedExtensionPatch)

@@ -4,16 +4,20 @@
 package app.morphe.patches.tiktok.interaction.feedtext
 
 import app.morphe.patcher.Fingerprint
+import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.util.smali.ExternalLabel
 import app.morphe.patches.shared.compat.AppCompatibilities
 import app.morphe.patches.tiktok.misc.extension.sharedExtensionPatch
 import app.morphe.patches.tiktok.shared.guardAtEntry
 import app.morphe.util.addInstruction
 import app.morphe.util.addInstructions
+import app.morphe.util.addInstructionsWithLabels
 import app.morphe.util.getReference
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.OffsetInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
@@ -51,8 +55,8 @@ internal object PostModeNavigationFingerprint : Fingerprint(
 val expandDescriptionInPlacePatch = bytecodePatch(
     name = WHAT,
     description = "Makes See more unfold the description right where it is, the way TikTok used to, " +
-        "instead of opening the full text in a new screen. Starts off. Turn it on in Hushfeed " +
-        "settings > Feed screen.",
+        "instead of opening the full text in a new screen. Starts off. Turn it on in the " +
+        "Pixkk Patches settings.",
 ) {
     category("Interface")
     compatibleWith(*AppCompatibilities.tiktok())
@@ -117,7 +121,9 @@ val expandDescriptionInPlacePatch = bytecodePatch(
             if (tapTextIndex < 3) throw PatchException("$WHAT: the visual-search check is gone")
             val flag = after[tapTextIndex - 2] as? OneRegisterInstruction
             if (flag == null || after[tapTextIndex - 2].opcode != Opcode.MOVE_RESULT ||
-                after[tapTextIndex - 3].opcode != Opcode.INVOKE_STATIC ||
+                // The answer may already pass through a filter called as a range.
+                (after[tapTextIndex - 3].opcode != Opcode.INVOKE_STATIC &&
+                    after[tapTextIndex - 3].opcode != Opcode.INVOKE_STATIC_RANGE) ||
                 after[tapTextIndex - 1].opcode != Opcode.IF_EQZ
             ) {
                 throw PatchException("$WHAT: the visual-search flag is not read as expected")
@@ -127,12 +133,33 @@ val expandDescriptionInPlacePatch = bytecodePatch(
             if (flag.registerA > 15 || compare.registerA > 15) {
                 throw PatchException("$WHAT: the registers no longer fit a four-bit call")
             }
-            addInstructions(
-                tapTextIndex - 1,
+            // The hook goes after the branch, not between the flag and the branch: the flag's move
+            // and its if-eqz stay next to each other, the shape another bundle's filter looks for.
+            // On the way through the branch the flag is known to be true, and the register that
+            // TAP_TEXT is loaded into next is free, so it holds the answer.
+            val branch = after[tapTextIndex - 1] as? OffsetInstruction
+                ?: throw PatchException("$WHAT: the visual-search flag is not tested by a branch")
+            val scratch = (after[tapTextIndex] as OneRegisterInstruction).registerA
+            if (scratch > 15 || scratch == compare.registerA) {
+                throw PatchException("$WHAT: no free register for the visual-search hook")
+            }
+            var address = 0
+            val addresses = IntArray(after.size + 1) { index ->
+                val at = address
+                if (index < after.size) address += after[index].codeUnits
+                at
+            }
+            val skip = addresses.indexOf(addresses[tapTextIndex - 1] + branch.codeOffset)
+            if (skip !in after.indices) throw PatchException("$WHAT: the visual-search branch lands between instructions")
+            addInstructionsWithLabels(
+                tapTextIndex,
                 """
-                    invoke-static { v${flag.registerA}, v${compare.registerA} }, $EXTENSION->keepSearchViewerOff(ZLjava/lang/Object;)Z
-                    move-result v${flag.registerA}
+                    const/4 v$scratch, 0x1
+                    invoke-static { v$scratch, v${compare.registerA} }, $EXTENSION->keepSearchViewerOff(ZLjava/lang/Object;)Z
+                    move-result v$scratch
+                    if-eqz v$scratch, :skip
                 """,
+                ExternalLabel("skip", getInstruction(skip)),
             )
         }
     }

@@ -25,10 +25,10 @@ import app.pixkk.extension.core.Settings;
  * it is written twice with a gap between, and one slide covers exactly one name and the gap,
  * after which the second copy sits where the first one began.
  *
- * Ids are 47.4.3's: {@code id/ppp}, the title of the music row.
+ * Ids are 47.5.3's: {@code id/ppw}, the title of the music row.
  */
 public final class SoundNameScroll {
-    private static final int TITLE_ID = 0x7f0a546d;
+    private static final int TITLE_ID = 0x7f0a5474;
     /** What separates the end of the name from its next start. */
     private static final String GAP = "   ";
     /** Layout is not there yet when a bind has only just set the text, so a start waits for it. */
