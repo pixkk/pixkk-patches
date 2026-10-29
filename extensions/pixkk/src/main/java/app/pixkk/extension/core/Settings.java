@@ -97,6 +97,10 @@ public final class Settings {
     public static final IntegerSetting SOUND_NAME_SCROLL_SPEED =
             new IntegerSetting("sound_name_scroll_speed", Defaults::soundScrollSpeed, 10, 200);
 
+    /** Place of the favorites button in the share menu's bottom row, counted from 1; 0 leaves it out. */
+    public static final IntegerSetting SHARE_FAVORITE_POSITION =
+            new IntegerSetting("share_favorite_position", Defaults::shareFavoritePosition, 0, 20);
+
     /** Added to the gaps down the right of a video, in dp; negative closes a gap up. */
     public static final IntegerSetting RAIL_SPACING_DP =
             new IntegerSetting("rail_spacing_dp", Defaults::railSpacingDp, -30, 60);
